@@ -1,5 +1,6 @@
 var {ipcRenderer, remote} = require('electron');  
 var main = remote.require("./main.js");
+var math = require('mathjs');
 
 // setup data series
 var x_data = {

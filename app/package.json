@@ -21,6 +21,7 @@
     "electron-rebuild": "^1.7.3"
   },
   "dependencies": {
+    "mathjs": "^3.20.1",
     "node-usb-detection": "^1.0.2",
     "serialport": "^6.0.4"
   }
