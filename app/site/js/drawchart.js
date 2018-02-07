@@ -31,7 +31,7 @@ var z_data = {
 // Listen for async-reply message from main process
 var datapoints = 0;
 ipcRenderer.on('stream_data', (event, arg) => {  
-    
+
     // increment datapoints count
     datapoints++;
     
@@ -42,7 +42,7 @@ ipcRenderer.on('stream_data', (event, arg) => {
     window.myLine.data.datasets[2].data.push((accel_data[2] - 1.0));
     window.myLine.data.labels.push(datapoints++);
     
-    // shift this to keep a maximum length of 200, so we don't overload the graph
+    // shift the queue to keep a maximum length of 200, so we don't overload the graph
     var maxLength = 200;
     var maxTime = 10000;
     if (window.myLine.data.datasets[0].data.length > maxLength)
@@ -60,6 +60,15 @@ ipcRenderer.on('stream_data', (event, arg) => {
     window.myLine.update();
     console.log(window.myLine.data);
     
+    // set statistics values
+    for (i = 0; i < 3; i++)
+    {
+        var dimension = 'x' + i;
+        var sigma_str = "&sigma;<sub>" + dimension.toString() + "</sub> ";
+        var sigma_val = math.round(math.std(window.myLine.data.datasets[i].data), 2).toString();
+        document.getElementById("uc-stats-value-" + dimension).innerHTML = sigma_str + sigma_val;
+    }
+
 });
 
 // set micro state
