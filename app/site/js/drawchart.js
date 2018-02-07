@@ -43,7 +43,7 @@ ipcRenderer.on('stream_data', (event, arg) => {
     window.myLine.data.labels.push(datapoints++);
     
     // shift the queue to keep a maximum length of 200, so we don't overload the graph
-    var maxLength = 200;
+    var maxLength = 100;
     var maxTime = 10000;
     if (window.myLine.data.datasets[0].data.length > maxLength)
         window.myLine.data.datasets[0].data.shift();
@@ -63,9 +63,10 @@ ipcRenderer.on('stream_data', (event, arg) => {
     // set statistics values
     for (i = 0; i < 3; i++)
     {
-        var dimension = 'x' + i;
+        var dimension = 'x';
+        dimension = String.fromCharCode(dimension.charCodeAt(0) + i);
         var sigma_str = "&sigma;<sub>" + dimension.toString() + "</sub> ";
-        var sigma_val = math.round(math.std(window.myLine.data.datasets[i].data), 2).toString();
+        var sigma_val = math.round(math.std(window.myLine.data.datasets[i].data), 6).toString();
         document.getElementById("uc-stats-value-" + dimension).innerHTML = sigma_str + sigma_val;
     }
 

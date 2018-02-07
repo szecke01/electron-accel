@@ -44,9 +44,7 @@ app.on('ready', createWindow)
 app.on('window-all-closed', function () {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
     app.quit()
-  }
 })
 
 app.on('activate', function () {
@@ -82,14 +80,24 @@ function querySerialPorts() {
     if(!port_found){
         var port_name  = 0;
         sp.list(function(err, ports) {
-
-            if (ports && ports[0]){
-                var port_name = ports[0]['comName'];
-                setupPort(port_name);
-            }
-            else{
-                mainWindow.webContents.send('set_state', false);
-                console.log('error querying serial ports');
+            for(i = 0; i < ports.length; i++)
+            {
+                if (ports[i] && ports[i]['comName']){
+                    
+                    // ignore built in ports like bt
+                    var port_name = ports[i]['comName'];
+                    if (port_name.toLowerCase().includes('bluetooth'))
+                            continue;
+                
+                    // log the port we have found, 
+                    console.log('Found port: ' + port_name);
+                    setupPort(port_name);
+                    return;
+                }
+                else{
+                    mainWindow.webContents.send('set_state', false);
+                    console.log('error querying serial ports');
+                }
             }
         });
     }
@@ -113,7 +121,6 @@ function setupPort(port_name){
             serialport.on('error', function(err) {
                 if(err){
                     console.log(err);
-                    console.log('error occurred in serial port')
                 }
             });
             
@@ -121,7 +128,7 @@ function setupPort(port_name){
             serialport.open(function(){
                 console.log('Serial Port Opened');
                 parser.on('data', function(data){
-                   // console.log(data[0]);
+                    //  console.log(data[0]);
                     // Send async message to render process
                     mainWindow.webContents.send('stream_data', data);
                     mainWindow.webContents.send('set_state', true);
