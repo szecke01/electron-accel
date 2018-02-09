@@ -4,7 +4,7 @@ This is a minimal electron app designed to query a micro-controller for data ove
 
 This code is comprised of two parts:
 
-- `app` - Typical electron app, can be started with `npm install && npm start`
+- `app` - Electron app, consists of `main.js` and `renderer.js`
 - `firmware` - Written for a Teensy microcontroller, will query an accelerometer for XYZ data
 
 Run the application from within the `app` directory via:
