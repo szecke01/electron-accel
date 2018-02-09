@@ -65,54 +65,65 @@ var port_found = false;
 // initialize port connection and set up listener for data throughput
 var monitor = require('node-usb-detection');
 
-// look for changes on usb
+// set up monitor to look at changes on USB device
 monitor.change(function(device){
   console.log('detected USB change');
-  querySerialPorts();
+  
+  // if we already have an active port, we don't need to query the ports again
+  if(!port_found){
+        querySerialPorts();
+  }
 });
 
-// look for initial connections
-querySerialPorts();
-
-// grab the first serial port we can find
+// query all the serial ports, in this case naively grabbing the first 
 function querySerialPorts() {
-    
-    if(!port_found){
-        var port_name  = 0;
-        sp.list(function(err, ports) {
-            for(i = 0; i < ports.length; i++)
-            {
-                if (ports[i] && ports[i]['comName']){
-                    
-                    // ignore built in ports like bt
-                    var port_name = ports[i]['comName'];
-                    if (port_name.toLowerCase().includes('bluetooth'))
-                            continue;
+
+    var port_name  = 0;
+
+    // iterate through each of the ports
+    sp.list(function(err, ports) {
+        for(i = 0; i < ports.length; i++)
+        {
+            // if the port is not null, and also has a real name
+            if (ports[i] && ports[i]['comName']){
                 
-                    // log the port we have found, 
-                    console.log('Found port: ' + port_name);
-                    setupPort(port_name);
-                    return;
-                }
-                else{
-                    mainWindow.webContents.send('set_state', false);
-                    console.log('error querying serial ports');
-                }
+                // ignore built in ports like bt
+                var port_name = ports[i]['comName'];
+                if (port_name.toLowerCase().includes('bluetooth'))
+                        continue;
+            
+                // log the port we have found, 
+                console.log('Found port: ' + port_name);
+                
+                // set up this serial port to grab some data
+                setupPort(port_name);
+                return;
             }
-        });
-    }
-    
-    // send message to renderer that the port state was set
+            else{
+                // if for whatever reason the ports are null, we should flag it
+                mainWindow.webContents.send('set_state', false);
+                console.log('NULL PORT: ' + ports[i].toString());
+            }
+        }
+    });
+
+    // if we made it here, set the global port_found to false 
+    port_found = false;
 
 }
 
+// set up a serial port to grab raw data
 function setupPort(port_name){
     
         // if there is a port to connect to, we'll set it up
         if (port_name){
-            var port_found = true;
+
+            // set global port_found to true
+            port_found = true;
+
+            // set up serial port params
             var serialport = new sp(port_name, {
-                  baudRate: 57600
+                  baudRate: 57600 // should match the micro controller serial baudrate
                 });
             var Readline = sp.parsers.Readline;
             var parser = serialport.pipe(new Readline());
@@ -126,16 +137,25 @@ function setupPort(port_name){
             
             // consume input data
             serialport.open(function(){
+                
+                // log serial port state
                 console.log('Serial Port Opened');
+                
+                // tell application renderer that we're connected
+                mainWindow.webContents.send('set_state', true);
+
+                // event handling: on data recieved, send this to the mainwindow
                 parser.on('data', function(data){
-                    //  console.log(data[0]);
-                    // Send async message to render process
+
+                    // Send async data to render process
                     mainWindow.webContents.send('stream_data', data);
-                    mainWindow.webContents.send('set_state', true);
                 });
             });
     }
 }
+
+// look for initial connections
+querySerialPorts();
 
 
 
