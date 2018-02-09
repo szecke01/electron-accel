@@ -1,6 +1,6 @@
 # Hardware Data Viz with Electron
 
-This is a minimal electron app designed to query a micro-controller for data over the serial port, and visualize it. See: [http://sam.town/electron-hardware/](http://sam.town/electron-hardware) for a more complete write-up.
+This is a minimal electron app designed to query a micro-controller for data over the serial port, and visualize it. See: [http://sam.town/hardware-design-with-node/](http://sam.town/hardware-design-with-node) for a more complete write-up.
 
 This code is comprised of two parts:
 
