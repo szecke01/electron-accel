@@ -7,6 +7,11 @@ This code is comprised of two parts:
 - `app` - Typical electron app, can be started with `npm install && npm start`
 - `firmware` - Written for a Teensy microcontroller, will query an accelerometer for XYZ data
 
+Run the application from within the `app` directory via:
+```
+$ npm install && npm start
+```
+
 ## Resources for Learning Electron
 
 - [electron.atom.io/docs](http://electron.atom.io/docs) - all of Electron's documentation
